@@ -125,14 +125,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-/**function saveState() {
+function saveState() {
   chrome.storage.sync.set({
     isRunning: isRunning,
     isBreak: isBreak,
     timeLeft: timeLeft,
     sessionsCompleted: sessionsCompleted
   });
-}**/
+}
 
 function countdown() {
   if (timeLeft > 0) {
