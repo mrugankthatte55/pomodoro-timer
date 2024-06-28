@@ -2,16 +2,20 @@
   "manifest_version": 3,
   "name": "Pomodoro Timer",
   "version": "1.0",
-  "description": "A Pomodoro Timer helps you to work in focused intervals with breaks.",
-  "action": {
-    "default_popup": "popup.html",
-    "default_icon": "icon.png"
-  },
+  "permissions": [
+    "storage",
+    "notifications",
+    "alarms"
+  ],
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": [
-    "notifications",
-    "storage"
-  ]
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  }
 }

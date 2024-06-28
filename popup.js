@@ -1,75 +1,45 @@
-let timer;
-let isRunning = false;
-let isBreak = false;
-let timeLeft;
-let sessionsCompleted = 0;
-
-function saveState() {
-  chrome.storage.sync.set({
-    isRunning: isRunning,
-    isBreak: isBreak,
-    timeLeft: timeLeft,
-    sessionsCompleted: sessionsCompleted
-  });
-}
-
 document.getElementById('start').addEventListener('click', () => {
-  if (!isRunning) {
-    const workDuration = parseInt(document.getElementById('workDuration').value) * 60;
-    const breakDuration = parseInt(document.getElementById('breakDuration').value) * 60;
-    const longBreakDuration = parseInt(document.getElementById('longBreakDuration').value) * 60;
-    const sessionsBeforeLongBreak = parseInt(document.getElementById('sessionsBeforeLongBreak').value);
-
-    if (isBreak) {
-      if (sessionsCompleted % sessionsBeforeLongBreak === 0 && sessionsCompleted !== 0) {
-        timeLeft = longBreakDuration;
-      } else {
-        timeLeft = breakDuration;
-      }
-    } else {
-      timeLeft = workDuration;
+  chrome.runtime.sendMessage({ action: 'start' }, (response) => {
+    if (response.success) {
+      updateUI();
     }
+  });
+});
 
-    timer = setInterval(countdown, 1000);
-    isRunning = true;
-    saveState();
-  }
+document.getElementById('pause').addEventListener('click', () => {
+  chrome.runtime.sendMessage({ action: 'pause' }, (response) => {
+    if (response.success) {
+      updateUI();
+    }
+  });
 });
 
 document.getElementById('stop').addEventListener('click', () => {
-  clearInterval(timer);
-  isRunning = false;
-  saveState();
+  chrome.runtime.sendMessage({ action: 'stop' }, (response) => {
+    if (response.success) {
+      updateUI();
+    }
+  });
 });
 
 document.getElementById('reset').addEventListener('click', () => {
-  clearInterval(timer);
-  timeLeft = 1500;
-  document.getElementById('time').textContent = formatTime(timeLeft);
-  isRunning = false;
-  saveState();
+  chrome.runtime.sendMessage({ action: 'reset' }, (response) => {
+    if (response.success) {
+      updateUI();
+    }
+  });
 });
 
-function countdown() {
-  if (timeLeft > 0) {
-    timeLeft--;
-    document.getElementById('time').textContent = formatTime(timeLeft);
-  } else {
-    clearInterval(timer);
-    isRunning = false;
-    isBreak = !isBreak;
-    if (!isBreak) sessionsCompleted++;
-    const audio = new Audio('alert.mp3');
-    audio.play();
-    chrome.notifications.create({
-      type: 'basic',
-      iconUrl: 'icon.png',
-      title: 'Pomodoro Timer',
-      message: isBreak ? 'Time for a break!' : 'Back to work!'
-    });
-    document.getElementById('start').click();
-  }
-  saveState();
+function updateUI() {
+  chrome.storage.sync.get(['timeLeft', 'isRunning', 'workDuration', 'breakDuration', 'longBreakDuration', 'sessionsBeforeLongBreak'], (data) => {
+    document.getElementById('time').textContent = formatTime(data.timeLeft || 1500);
+    document.getElementById('workDuration').value = (data.workDuration / 60) || 25;
+    document.getElementById('breakDuration').value = (data.breakDuration / 60) || 5;
+    document.getElementById('longBreakDuration').value = (data.longBreakDuration / 60) || 15;
+    document.getElementById('sessionsBeforeLongBreak').value = data.sessionsBeforeLongBreak || 4;
+    document.getElementById('start').disabled = data.isRunning;
+    document.getElementById('pause').disabled = !data.isRunning;
+  });
 }
 
 function formatTime(seconds) {
@@ -79,17 +49,14 @@ function formatTime(seconds) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  chrome.storage.sync.get(['isRunning', 'isBreak', 'timeLeft', 'sessionsCompleted'], (data) => {
-    isRunning = data.isRunning || false;
-    isBreak = data.isBreak || false;
-    timeLeft = data.timeLeft || 1500;
-    sessionsCompleted = data.sessionsCompleted || 0;
-    document.getElementById('time').textContent = formatTime(timeLeft);
-    if (isRunning) {
-      timer = setInterval(countdown, 1000);
+  updateUI();
+  chrome.storage.onChanged.addListener((changes, namespace) => {
+    if (namespace === 'sync' && changes.timeLeft) {
+      document.getElementById('time').textContent = formatTime(changes.timeLeft.newValue);
     }
-    saveState();
+    if (namespace === 'sync' && changes.isRunning) {
+      document.getElementById('start').disabled = changes.isRunning.newValue;
+      document.getElementById('pause').disabled = !changes.isRunning.newValue;
+    }
   });
 });
-
-document.getElementById('time').textContent = formatTime(1500);
