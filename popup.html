@@ -2,9 +2,7 @@
 <html>
 <head>
   <title>Pomodoro Timer</title>
-  <style>
-    /* Add your styles here */
-  </style>
+  <link rel="stylesheet" href="popup.css">
 </head>
 <body>
   <div>
@@ -13,10 +11,24 @@
     <button id="pause" disabled>Pause</button>
     <button id="stop">Stop</button>
     <button id="reset">Reset</button>
+    <br/>
     <input type="number" id="workDuration" placeholder="Work duration (minutes)" />
+    <br/>
     <input type="number" id="breakDuration" placeholder="Break duration (minutes)" />
+    <br/>
     <input type="number" id="longBreakDuration" placeholder="Long break duration (minutes)" />
+    <br/>
     <input type="number" id="sessionsBeforeLongBreak" placeholder="Sessions before long break" />
+    <br/>
+    <!-- <br/>
+    <label>Work (minutes) <input type="number" id="workDuration" placeholder="Work duration (minutes)" /></label>
+    <br/>
+    <label>Break (minutes) <input type="number" id="breakDuration" placeholder="Break duration (minutes)" /></label>
+    <br/>
+    <label>Long break (minutes) <input type="number" id="longBreakDuration" placeholder="Long break duration (minutes)" /></label>
+    <br/>
+    <label>Sessions before long break <input type="number" id="sessionsBeforeLongBreak" placeholder="Sessions before long break" /></label>
+    <br/> -->
   </div>
   <script src="popup.js"></script>
 </body>

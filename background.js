@@ -92,9 +92,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           timeLeft: timeLeft
         });
         chrome.alarms.create('pomodoroTimer', { periodInMinutes: 1 / 60 });
+        sendResponse({ success: true });
       });
     }
-    sendResponse({ success: true });
   } else if (message.action === 'pause') {
     chrome.alarms.clear('pomodoroTimer');
     isRunning = false;
@@ -110,12 +110,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
     sendResponse({ success: true });
   } else if (message.action === 'reset') {
+    const workDuration = message.workDuration;
+    const breakDuration = message.breakDuration;
+    const longBreakDuration = message.longBreakDuration;
+    const sessionsBeforeLongBreak = message.sessionsBeforeLongBreak;
+
     chrome.alarms.clear('pomodoroTimer');
-    timeLeft = 1500;
+    timeLeft = workDuration;
     isRunning = false;
     chrome.storage.sync.set({
       timeLeft: timeLeft,
-      isRunning: isRunning
+      isRunning: isRunning,
+      workDuration: workDuration,
+      breakDuration: breakDuration,
+      longBreakDuration: longBreakDuration,
+      sessionsBeforeLongBreak: sessionsBeforeLongBreak
     });
     sendResponse({ success: true });
   }
