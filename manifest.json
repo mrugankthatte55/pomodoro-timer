@@ -6,7 +6,7 @@
     "storage",
     "notifications",
     "alarms",
-    "offscreen"
+    
   ],
   "background": {
     "service_worker": "background.js"
